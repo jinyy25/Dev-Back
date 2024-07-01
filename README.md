@@ -1,4 +1,4 @@
-KMS_ BackEnd Part
+KMS_ BackEnd Part (1인 개발)
 
 Skill Set
 - Programming Languages: Java, Spring Framework
