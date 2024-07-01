@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.notice.mapper.NoticeMapper">
+
+
+    <select id="noticeSeaerch" parameterType="NoticeDto" resultType="NoticeDto">
+        SELECT
+        board_id
+        , title
+        , writer
+        , date_format(indt,'%Y-%m-%d') indt
+        , date_format(updt,'%Y-%m-%d') updt
+        , content
+        FROM deepir.tb_board
+        <where>
+            <if test="title != null and title != ''">
+                title like CONCAT('%', #{title}, '%')
+            </if>
+        </where>
+        order by board_id desc
+        <if test="rowCount > 0 ">
+            limit #{rowCount}
+        </if>
+    </select>
+
+    <insert id="noticeInsert"  parameterType="NoticeDto">
+        INSERT INTO deepir.tb_board (writer, title, content)
+      			value ("관리자" ,#{title}, #{content})
+    </insert>
+
+
+    <select id="noticeView" parameterType="NoticeDto" resultType="NoticeDto">
+        SELECT
+        board_id
+        , title
+        , writer
+        , date_format(indt,'%Y-%m-%d') indt
+        , date_format(updt,'%Y-%m-%d') updt
+        , content
+        FROM deepir.tb_board
+        <where>
+            <if test="boardId != null and boardId != ''">
+                board_id = #{boardId}
+            </if>
+        </where>
+
+    </select>
+    <delete id="noticeDelete" parameterType="NoticeDto">
+        DELETE FROM deepir.tb_board
+        WHERE 1=1
+    	    AND board_id = #{boardId}
+    </delete>
+
+
+    <update id="noticeUpdate" parameterType="NoticeDto">
+        UPDATE deepir.tb_board
+        SET updt=now()
+        , title	    = #{title}
+        , content	= #{content}
+        WHERE 1=1
+        AND board_id = #{boardId}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.reqdata.mapper.ReqDataMapper">
+    <!-- id: mapper 인터페이스에서 선언한 메서드 이름과 같아야 한다. resultType: VO 클래스가 위치하는 경로 -->
+
+
+	<select id="requestList" parameterType="RequestDto" resultType="ReqResponsDto">
+		SELECT a.req_seq
+		, CASE
+					when a.req_code=1 then '요청중'
+					when a.req_code=2 then '요청취소'
+					when a.req_code=3 then '승인'
+					when a.req_code=4 then '반려'
+					else ''
+				END req_code
+			, a.file_code
+			, a.req_desc
+			, date_format(a.indt,'%Y-%m-%d %H:%i') indt
+			, date_format(a.updt,'%Y-%m-%d %H:%i') updt
+			, b.file_ext
+			, b.save_name
+			, b.file_name
+			, c.user_name
+		FROM deepir.tb_file_request a
+		LEFT OUTER JOIN deepir.tb_file_info b on b.file_code=a.file_code
+		LEFT OUTER JOIN deepir.tb_users c on c.user_seq=a.req_user
+		WHERE 1=1
+			AND a.req_code =1
+		<if test="userId  != null and userId != ''">
+				AND a.inid = #{userId}
+			</if>
+		<if test="startDate != null">
+				AND a.indt BETWEEN #{startDate} AND CONCAT(SUBSTRING(#{endDate}, 1, 10), ' 23:59:59')
+			</if>
+			<if test="userName != null and userName != ''">
+			  	AND c.user_name like CONCAT('%', #{userName}, '%')
+			</if>
+		ORDER BY a.indt DESC
+	</select>
+
+	<update id="updateApproval">
+		UPDATE deepir.tb_file_request
+		SET req_code = 3, res_desc = '보안에 유의하세요.', updt = now()
+		 WHERE req_seq = #{reqSeq}
+	</update>
+
+	<update id="updateReject">
+		UPDATE deepir.tb_file_request
+		SET req_code = 4, res_desc = '일괄 반려처리 되었습니다.', updt = now()
+		 WHERE req_seq = #{reqSeq}
+	</update>
+
+
+	<select id ="retrieveReqInfo" parameterType="RequestDto" resultType="ReqResponsDto">
+		SELECT a.req_seq
+			, CASE
+					when a.req_code=1 then '요청중'
+					when a.req_code=2 then '요청취소'
+					when a.req_code=3 then '승인'
+					when a.req_code=4 then '반려'
+					else ''
+				END req_code
+			, a.file_code
+			, a.req_desc
+			, date_format(a.indt,'%Y-%m-%d %H:%i') indt
+			, date_format(a.updt,'%Y-%m-%d %H:%i') updt
+			, b.file_ext
+			, b.save_name
+			, b.file_name
+			, c.user_name
+		FROM deepir.tb_file_request a
+		LEFT OUTER JOIN deepir.tb_file_info b on b.file_code=a.file_code
+		LEFT OUTER JOIN deepir.tb_users c on c.user_seq=a.req_user
+		WHERE 1=1
+		<if test="startDate  != null">
+		  AND a.indt BETWEEN #{startDate} AND CONCAT(SUBSTRING(#{endDate}, 1, 10), ' 23:59:59')
+		</if>
+		<if test="userId  != null and userId != ''">
+			AND a.inid = #{userId}
+		</if>
+		<if test="reqCode != 0 ">
+			AND a.req_code = #{reqCode}
+		</if>
+		<if test="reqTypeCd != 0 ">
+			AND b.type_code = #{reqTypeCd}
+		</if>
+		<if test="userName != null and userName != ''">
+			AND c.user_name like CONCAT('%', #{userName}, '%')
+		</if>
+		ORDER BY a.req_seq DESC
+		<if test="rowCount > 0 ">
+			limit #{rowCount}
+		</if>
+	</select>
+
+
+	<insert id="fileRequest" parameterType="RequestDto">
+		INSERT INTO deepir.tb_file_request(
+			file_code, req_user, req_desc, inid
+		) VALUES(#{fileCode}, #{userSeq} , #{reqDesc}, #{inid})
+	</insert>
+
+
+
+<!--	<select id="errorList" parameterType="ReqDataDto" resultType="ReqDataDto">-->
+<!--		SELECT file_name-->
+<!--			 , case-->
+<!--					when data_yn = 9 then '미지원'-->
+<!--					when data_yn = 100 then '파일오류'-->
+<!--					when data_yn = 500 then '파서실패'-->
+<!--			 	else ''-->
+<!--			 end error_name-->
+<!--		     , file_ext-->
+<!--		     , organi_name-->
+<!--			 , project_name-->
+<!--		FROM deepir.tb_file_info-->
+<!--		WHERE 1=1-->
+<!--		AND data_yn not in (0, 1, 2)-->
+<!--		ORDER BY file_code DESC-->
+<!--    </select>-->
+
+
+
+</mapper>

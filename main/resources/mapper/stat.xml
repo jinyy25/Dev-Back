@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.stat.mapper.StatMapper">
+    <select id="statdocs" resultType="StatDocsDto">
+        SELECT file_ext as ext
+		, count(*) as total_cnt
+		, sum(case when DATE_FORMAT(now(), '%Y-%m-%d')=DATE_FORMAT(indt, '%Y-%m-%d') then 1 else 0 end) as today_cnt
+		, sum(case when data_yn>10 then 1 else 0 end) as error_cnt
+		, sum(case when data_yn=0 then 1 else 0 end) as file_cnt
+		, sum(case when data_yn=1 then 1 else 0 end) as extract_cnt
+		, sum(case when data_yn=2 then 1 else 0 end) as elastic_cnt
+		, sum(case when data_yn=3 then 1 else 0 end) as passage_cnt
+		, sum(case data_yn when 5 then 1 when 6 then 1 else 0 end) as keyword_cnt
+		, sum(case when data_yn=9 then 1 else 0 end) as noext_cnt
+		, sum(case when data_yn=100 then 1 else 0 end) as extr_err_cnt
+		, sum(case when data_yn=500 then 1 else 0 end) as file_err_cnt
+		FROM (
+			select case lcase(file_ext)
+				when 'pdf' then 'Pdf:[Adobe]'
+				when 'hwp' then 'Hwp:[아래한글]'
+				when 'xls' then 'Xls:[Excel 2003]'
+				when 'xlsx' then 'Xlsx:[Excel 2007]'
+				when 'doc' then 'Doc:[Word 2003]'
+				when 'docx' then 'Docx:[Word 2007]'
+				when 'ppt' then 'Ppt:[PowerPoint 2003]'
+				when 'pptx' then 'Pptx:[PowerPoint 2007]'
+				else 'Zzz:[기타]' end as file_ext
+				, data_yn, indt, updt
+			from deepir.tb_file_info
+			WHERE 1=1
+		) ss
+		group by file_ext
+		WITH ROLLUP
+    </select>
+
+	<select id="statperson" parameterType= "StatRequestDto" resultType="StatPersonDto">
+		SELECT ifnull(b.user_id,'Total') as user_id
+			, ifnull(b.user_name,'Total') as user_name
+			, a.total_cnt
+			, a.cnt1, a.cnt2, a.cnt3, a.cnt4
+			, a.cnt5, a.cnt6, a.cnt7, a.cnt8
+			, a.cnt9, a.cnt10, a.cnt11, a.cnt12
+		FROM
+		(
+			SELECT ifnull(a.req_user,'Total') as user_seq
+				, count(*) as total_cnt
+				, sum(case DATE_FORMAT(a.indt, '%m') when '01' then 1 else 0 end) as cnt1
+				, sum(case DATE_FORMAT(a.indt, '%m') when '02' then 1 else 0 end) as cnt2
+				, sum(case DATE_FORMAT(a.indt, '%m') when '03' then 1 else 0 end) as cnt3
+				, sum(case DATE_FORMAT(a.indt, '%m') when '04' then 1 else 0 end) as cnt4
+				, sum(case DATE_FORMAT(a.indt, '%m') when '05' then 1 else 0 end) as cnt5
+				, sum(case DATE_FORMAT(a.indt, '%m') when '06' then 1 else 0 end) as cnt6
+				, sum(case DATE_FORMAT(a.indt, '%m') when '07' then 1 else 0 end) as cnt7
+				, sum(case DATE_FORMAT(a.indt, '%m') when '08' then 1 else 0 end) as cnt8
+				, sum(case DATE_FORMAT(a.indt, '%m') when '09' then 1 else 0 end) as cnt9
+				, sum(case DATE_FORMAT(a.indt, '%m') when '10' then 1 else 0 end) as cnt10
+				, sum(case DATE_FORMAT(a.indt, '%m') when '11' then 1 else 0 end) as cnt11
+				, sum(case DATE_FORMAT(a.indt, '%m') when '12' then 1 else 0 end) as cnt12
+			FROM deepir.tb_file_request a
+			where 1=1
+			AND a.req_user not in (58, 57, 116, 6, 128, 203, 211, 241, 115)
+			AND a.req_code = 3
+			AND a.indt BETWEEN #{reqSdate} AND CONCAT(SUBSTRING(#{reqEdate}, 1, 10), ' 23:59:59')
+			group by a.req_user
+			WITH ROLLUP
+		) a
+		LEFT OUTER JOIN deepir.tb_users b ON b.user_seq = a.user_seq
+		ORDER BY 3 DESC
+	</select>
+
+
+
+
+	<select id="statfile" parameterType= "StatRequestDto" resultType="StatFileDto">
+		SELECT b.project_name
+		       	, b.file_name
+		    	, b.file_ext
+				, b.file_code
+				, sum(1) as req_total
+				, sum(case when a.req_code = 3 then 1 else 0 end) as req_confirm
+				, sum(case when a.req_code = 4 then 1 else 0 end) as req_reject
+				, sum(case when a.req_code = 1 then 1 else 0 end) as req_run
+				, sum(case when a.req_code = 2 then 1 else 0 end) as req_cancel
+		FROM deepir.tb_file_request a
+		LEFT OUTER JOIN deepir.tb_file_info b on b.file_code=a.file_code
+		LEFT OUTER JOIN deepir.tb_users c on c.user_seq=a.req_user
+		WHERE 1=1
+			AND c.vendor_seq = 29
+			AND a.indt BETWEEN #{reqSdate} AND CONCAT(SUBSTRING(#{reqEdate}, 1, 10), ' 23:59:59')
+			<if test="reqStype != null and reqStype != ''">
+				AND b.type_code = #{reqStype}
+			</if>
+		group by b.file_code, b.file_name, b.file_path, b.file_ext
+		ORDER BY 4 DESC
+	</select>
+
+
+	<select id="statuser" parameterType= "StatRequestDto" resultType="StatPersonDto">
+		SELECT a.user_id
+			, ifnull(b.user_name,'Total') as user_name
+			, a.total_cnt
+			, a.cnt1, a.cnt2, a.cnt3, a.cnt4
+			, a.cnt5, a.cnt6, a.cnt7, a.cnt8
+			, a.cnt9, a.cnt10, a.cnt11, a.cnt12
+		FROM
+		(
+			SELECT ifnull(a.user_id,'Total') as user_id
+				, count(*) as total_cnt
+				, sum(case DATE_FORMAT(a.created, '%m') when '01' then 1 else 0 end) as cnt1
+				, sum(case DATE_FORMAT(a.created, '%m') when '02' then 1 else 0 end) as cnt2
+				, sum(case DATE_FORMAT(a.created, '%m') when '03' then 1 else 0 end) as cnt3
+				, sum(case DATE_FORMAT(a.created, '%m') when '04' then 1 else 0 end) as cnt4
+				, sum(case DATE_FORMAT(a.created, '%m') when '05' then 1 else 0 end) as cnt5
+				, sum(case DATE_FORMAT(a.created, '%m') when '06' then 1 else 0 end) as cnt6
+				, sum(case DATE_FORMAT(a.created, '%m') when '07' then 1 else 0 end) as cnt7
+				, sum(case DATE_FORMAT(a.created, '%m') when '08' then 1 else 0 end) as cnt8
+				, sum(case DATE_FORMAT(a.created, '%m') when '09' then 1 else 0 end) as cnt9
+				, sum(case DATE_FORMAT(a.created, '%m') when '10' then 1 else 0 end) as cnt10
+				, sum(case DATE_FORMAT(a.created, '%m') when '11' then 1 else 0 end) as cnt11
+				, sum(case DATE_FORMAT(a.created, '%m') when '12' then 1 else 0 end) as cnt12
+			FROM deepir.tb_log_vendor a
+			where 1=1
+			AND a.user_seq not IN (58, 57, 116, 6, 128, 203, 211, 241,132,115,140)
+			AND a.log_type = 1
+			  AND a.created BETWEEN #{reqSdate} AND CONCAT(SUBSTRING(#{reqEdate}, 1, 10), ' 23:59:59')
+			group by a.user_id
+			WITH ROLLUP
+		) a
+		LEFT OUTER JOIN deepir.tb_users b ON b.user_id = a.user_id
+		WHERE 1=1
+		ORDER BY 3 DESC
+	</select>
+
+
+	<select id="statweek" parameterType= "StatRequestDto" resultType="StatWeekDto">
+		SELECT (case DATE_FORMAT(a.created, '%w')
+				when '0' then '일'
+				when '1' then '월'
+				when '2' then '화'
+				when '3' then '수'
+				when '4' then '목'
+				when '5' then '금'
+				when '6' then '토'
+			else '' end) as month_week
+			, count(*) as total_cnt
+			, sum(case DATE_FORMAT(a.created, '%m') when '01' then 1 else 0 end) as cnt1
+			, sum(case DATE_FORMAT(a.created, '%m') when '02' then 1 else 0 end) as cnt2
+			, sum(case DATE_FORMAT(a.created, '%m') when '03' then 1 else 0 end) as cnt3
+			, sum(case DATE_FORMAT(a.created, '%m') when '04' then 1 else 0 end) as cnt4
+			, sum(case DATE_FORMAT(a.created, '%m') when '05' then 1 else 0 end) as cnt5
+			, sum(case DATE_FORMAT(a.created, '%m') when '06' then 1 else 0 end) as cnt6
+			, sum(case DATE_FORMAT(a.created, '%m') when '07' then 1 else 0 end) as cnt7
+			, sum(case DATE_FORMAT(a.created, '%m') when '08' then 1 else 0 end) as cnt8
+			, sum(case DATE_FORMAT(a.created, '%m') when '09' then 1 else 0 end) as cnt9
+			, sum(case DATE_FORMAT(a.created, '%m') when '10' then 1 else 0 end) as cnt10
+			, sum(case DATE_FORMAT(a.created, '%m') when '11' then 1 else 0 end) as cnt11
+			, sum(case DATE_FORMAT(a.created, '%m') when '12' then 1 else 0 end) as cnt12
+		FROM deepir.tb_log_vendor a
+		where 1=1
+		AND a.user_id not in ('vtwadm','vtwusr','vtwman')
+		and a.log_type = 1
+		  AND a.created BETWEEN #{reqSdate} AND CONCAT(SUBSTRING(#{reqEdate}, 1, 10), ' 23:59:59')
+		group by DATE_FORMAT(a.created, '%w')
+	</select>
+
+
+	<select id="stattime" parameterType= "StatRequestDto" resultType="StatTimeDto">
+		SELECT DATE_FORMAT(a.created, '%H') as date_times
+			, count(*) as totalCnt
+			, sum(case DATE_FORMAT(a.created, '%m') when '01' then 1 else 0 end) as cnt1
+			, sum(case DATE_FORMAT(a.created, '%m') when '02' then 1 else 0 end) as cnt2
+			, sum(case DATE_FORMAT(a.created, '%m') when '03' then 1 else 0 end) as cnt3
+			, sum(case DATE_FORMAT(a.created, '%m') when '04' then 1 else 0 end) as cnt4
+			, sum(case DATE_FORMAT(a.created, '%m') when '05' then 1 else 0 end) as cnt5
+			, sum(case DATE_FORMAT(a.created, '%m') when '06' then 1 else 0 end) as cnt6
+			, sum(case DATE_FORMAT(a.created, '%m') when '07' then 1 else 0 end) as cnt7
+			, sum(case DATE_FORMAT(a.created, '%m') when '08' then 1 else 0 end) as cnt8
+			, sum(case DATE_FORMAT(a.created, '%m') when '09' then 1 else 0 end) as cnt9
+			, sum(case DATE_FORMAT(a.created, '%m') when '10' then 1 else 0 end) as cnt10
+			, sum(case DATE_FORMAT(a.created, '%m') when '11' then 1 else 0 end) as cnt11
+			, sum(case DATE_FORMAT(a.created, '%m') when '12' then 1 else 0 end) as cnt12
+		FROM deepir.tb_log_vendor a
+		where 1=1
+		AND a.user_id not in ('vtwadm','vtwusr','vtwman')
+		and a.log_type = 1
+		  AND a.created BETWEEN #{reqSdate} AND CONCAT(SUBSTRING(#{reqEdate}, 1, 10), ' 23:59:59')
+		group by DATE_FORMAT(a.created, '%H')
+		WITH ROLLUP;
+
+	</select>
+
+
+	<select id="statdownload" parameterType= "StatRequestDto" resultType="StatDownloadDto">
+		SELECT tdh.user_id
+		, tu.user_name
+		, tdh.file_code
+		, tfi.project_name
+		, date_format(tdh.download_timestamp,'%Y-%m-%d %H:%i') download_timestamp
+		, CASE
+	        WHEN tu.role_duration IS NOT NULL THEN CONCAT(DATE_FORMAT(tu.role_duration, '%Y-%m-%d'), ' ~ ', DATE_FORMAT(tu.role_duration + INTERVAL 3 DAY, '%Y-%m-%d'))
+			WHEN tfi.file_ext != "PPTX" THEN "권한이 필요하지 않음"
+	        ELSE '만료'
+	    END role_duration
+		, tdh.ip_address
+		, tfi.file_name
+		, UPPER(tfi.file_ext) file_ext
+		FROM tb_download_history tdh
+		LEFT OUTER JOIN deepir.tb_users tu on tdh.user_id =tu.user_id
+		LEFT OUTER JOIN deepir.tb_file_info tfi on tfi.file_code =tdh.file_code
+		WHERE 1=1
+		AND tdh.download_timestamp BETWEEN #{reqSdate} AND CONCAT(SUBSTRING(#{reqEdate}, 1, 10), ' 23:59:59')
+		ORDER BY download_timestamp desc
+	</select>
+
+
+	<select id="statmileage" parameterType= "StatRequestDto" resultType="StatMileageDto">
+		SELECT tu.user_name,
+			   SUM(mileage) AS total_mileage,
+		       SUM(CASE WHEN mileage_category = 'download' THEN mileage ELSE 0 END) AS download_count,
+		       SUM(CASE WHEN mileage_category = 'upload' THEN mileage ELSE 0 END) AS upload_count
+		FROM tb_mileage tm
+		LEFT OUTER JOIN tb_users tu ON tm.user_id = tu.user_id
+		WHERE 1=1
+		AND indt BETWEEN #{reqSdate} AND CONCAT(SUBSTRING(#{reqEdate}, 1, 10), ' 23:59:59')
+		GROUP BY tm.user_id
+		ORDER BY total_mileage desc;
+	</select>
+</mapper>

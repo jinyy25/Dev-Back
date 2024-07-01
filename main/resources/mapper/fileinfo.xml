@@ -1,0 +1,33 @@
+<?x	ml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.viewer.mapper.FileInfoMapper">
+    <!-- id: mapper 인터페이스에서 선언한 메서드 이름과 같아야 한다. resultType: VO 클래스가 위치하는 경로 -->
+    <select id="getFileDetail" parameterType="ViewerRequestDto" resultType="ViewerResponseDto">
+        SELECT
+            distinct a.file_code
+			, a.file_name
+       		, a.project_year
+			, a.save_name
+       		, a.project_name
+			, a.file_ext
+       		, CASE
+       			WHEN a.file_ext in ('pptx','ppt') THEN REPLACE(a.save_name, 'pptx', 'pdf')
+       			ELSE a.save_name
+       		  END tmp_name
+            , a.type_file
+            , a.organi_name
+       		, date_format(a.indt,'%Y-%m-%d') indt
+            , b.inid
+			, b.req_code
+       	FROM deepir.tb_file_info a
+       	LEFT OUTER JOIN deepir.pp_vtw_pptx vp ON vp.file_code = a.file_code
+       	LEFT OUTER JOIN deepir.tb_file_request b on b.file_code=a.file_code and b.inid = #{userId} and b.req_code != 4
+       	LEFT OUTER JOIN deepir.tb_users c on b.inid=c.user_id
+       	WHERE 1=1
+       	AND a.file_code = #{fileCode}
+    </select>
+</mapper>

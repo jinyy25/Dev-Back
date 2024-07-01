@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.setting.mapper.SettingMapper">
+
+    <select id="settingAuth" parameterType="String" resultType="AuthViewDto">
+        SELECT user_seq
+            , user_id
+            , user_name
+            , last_logon_time
+            , phone
+           	, CASE user_type WHEN 'ROLE_USER' THEN '사용자'
+		    				 WHEN 'ROLE_ADMIN' THEN '관리자'
+		    ELSE '미구분'
+            END user_type
+            , CASE man_type WHEN 'NONE' THEN '권한없음'
+            				WHEN 'ROLE_VIEW' THEN '인력조회자'
+            				WHEN 'ROLE_MANAGE' THEN '인력관리자'
+            ELSE '미구분'
+            END man_type
+           , CASE down_type WHEN 'NONE' THEN '권한없음'
+            				WHEN 'ROLE_DOWNLOAD' THEN '다운권한'
+            				WHEN 'ROLE_APPROVAL' THEN '승인권한'
+            				WHEN 'ROLE_ALL' THEN '전체권한'
+            ELSE '미구분'
+            END down_type
+      	FROM deepir.tb_users a
+      <where>
+          <if test="userName != null and userName != ''">
+             a.user_name like CONCAT('%', #{userName}, '%')
+          </if>
+      </where>
+      	ORDER BY down_type desc, last_logon_time desc, user_id, sect_cd, jobgd_cd, user_name
+    </select>
+
+
+
+
+    <select id="settingView" parameterType="int" resultType="AuthViewDto">
+        SELECT user_seq
+             , user_id
+             , user_name
+             , last_logon_time
+             , CASE user_type WHEN 'ROLE_USER' THEN '사용자'
+                             WHEN 'ROLE_ADMIN' THEN '관리자'
+            ELSE '미구분'
+             END user_type
+             , CASE man_type WHEN 'NONE' THEN '권한없음'
+                            WHEN 'ROLE_VIEW' THEN '인력조회자'
+                            WHEN 'ROLE_MANAGE' THEN '인력관리자'
+             ELSE '미구분'
+             END man_type
+            , CASE down_type WHEN 'NONE' THEN '권한없음'
+                            WHEN 'ROLE_DOWNLOAD' THEN '다운권한'
+                            WHEN 'ROLE_APPROVAL' THEN '승인권한'
+                            WHEN 'ROLE_ALL' THEN '전체권한'
+             ELSE '미구분'
+            END down_type
+             , phone
+       	FROM deepir.tb_users a
+       	WHERE 1=1
+       	AND user_seq = #{userSeq}
+    </select>
+
+
+    <update id="saveSetting" parameterType="AuthDetailDto">
+        UPDATE deepir.tb_users
+      	    SET updated    = now()
+      		, user_type    = #{userType}
+      		, man_type     = #{manType}
+      		, down_type    = #{downType}
+      	WHERE user_seq     = #{userSeq}
+    </update>
+
+    <select id="settingCount" resultType="int">
+        <![CDATA[
+        SELECT count(*) FROM deepir.tb_users
+       	 WHERE 1=1
+       	 AND user_status =1
+       	 AND user_type<10
+        ]]>
+    </select>
+
+    <update id="updateDuration" >
+        UPDATE tb_users SET role_duration = #{state} WHERE user_seq = #{userSeq};
+    </update>
+
+
+</mapper>

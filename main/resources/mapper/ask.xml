@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.ask.mapper.AskMapper">
+
+	<select id="askSearch" parameterType="AskRequestDto" resultType="AskDto">
+     SELECT
+		ask_id
+		, ask_writer
+		, ask_email
+		, ask_title
+		, ask_desc
+		, date_format(indt,'%Y-%m-%d') indt
+		, date_format(updt,'%Y-%m-%d') updt
+     	, category
+	FROM deepir.tb_ask
+     <where>
+         <if test="askTitle != null and askTitle != ''">
+			 ask_title like CONCAT('%', #{askTitle}, '%')
+         </if>
+     </where>
+     order by ask_id desc
+ </select>
+
+    <insert id="askInsert" parameterType="AskDto" >
+        INSERT INTO deepir.tb_ask
+      			( 	ask_writer, ask_email, ask_desc, ask_title, category
+      			) VALUES(
+      			#{askWriter}
+      			, #{askEmail}
+      			, #{askDesc}
+      			, #{askTitle}
+      			, #{category}
+      			)
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.reference.mapper.ReferenceMapper">
+
+
+    <!-- id: mapper 인터페이스에서 선언한 메서드 이름과 같아야 한다. resultType: VO 클래스가 위치하는 경로 -->
+    <select id="referenceSearch" parameterType="ReferenceDto" resultType="ReferenceDto">
+        SELECT
+   		fu.file_code
+   		, fu.file_name
+   		, fu.title_file
+   		, fu.file_ext
+   		, fu.view_cnt
+   		, fu.down_cnt
+   		, fu.inid
+   		, date_format(fu.indt,'%Y-%m-%d') indt
+   		, tu.user_name
+		, fu.desc_file
+   	FROM deepir.tb_file_user fu
+       LEFT OUTER JOIN deepir.tb_users tu ON fu.inid = tu.user_id
+   	WHERE 1=1
+   		AND type_code = 1
+		<if test="inid  != null and inid != ''">
+			AND fu.inid = #{inid}
+		</if>
+		<if test="titleFile != null and titleFile != ''">
+			AND fu.title_file like CONCAT('%', #{titleFile}, '%')
+  		</if>
+   	ORDER BY fu.file_code DESC
+    </select>
+
+	<select id="referenceDetail" parameterType="ReferenceDto" resultType="ReferenceDto">
+		SELECT
+			fu.file_code
+			, fu.file_name
+			, fu.title_file
+			, fu.file_ext
+			, fu.view_cnt
+			, fu.down_cnt
+			, fu.inid
+			, date_format(fu.indt,'%Y-%m-%d') indt
+			, tu.user_name
+			, fu.desc_file
+			, fu.save_name
+			, CASE
+       			WHEN fu.file_ext in ('pptx','ppt') THEN REPLACE(fu.save_name, 'pptx', 'pdf')
+       			ELSE fu.save_name
+       		  END tmp_name
+	FROM deepir.tb_file_user fu
+			 LEFT OUTER JOIN deepir.tb_users tu ON fu.inid = tu.user_id
+	WHERE 1=1
+	AND fu.file_code = #{fileCode}
+	</select>
+
+
+	<delete id="referenceDelete" parameterType="ReferenceDto">
+     DELETE FROM deepir.tb_file_user
+     WHERE 1=1
+ 	    AND file_code = #{fileCode}
+ 	</delete>
+
+	<update id="referenceUpdate" parameterType="ReferenceDto">
+		UPDATE deepir.tb_file_user
+		SET updt=now()
+		, title_file	    = #{titleFile}
+		, desc_file			= #{descFile}
+		WHERE 1=1
+		AND file_code = #{fileCode}
+ 	</update>
+
+	<update id="viewCount" parameterType="ReferenceDto">
+		UPDATE deepir.tb_file_user
+		SET view_cnt = #{viewCnt}
+		WHERE 1=1
+		AND file_code = #{fileCode}
+	</update>
+
+	<update id="downloadCount" parameterType="ReferenceDto">
+		UPDATE deepir.tb_file_user
+	  SET down_cnt = #{downCnt}
+	  WHERE file_code = #{fileCode}
+	</update>
+
+	<insert id="insertMileage" parameterType="MileageDto">
+		INSERT INTO deepir.tb_mileage
+		(user_id, mileage_category, mileage, indt, updt)
+		VALUES(#{userId}, #{mileageCategory}, #{mileage}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	</insert>
+
+
+
+</mapper>

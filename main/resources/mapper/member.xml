@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.member.mapper.MemberMapper">
+    <insert id="insertLoginHistory" parameterType="LoginHistoryDto" >
+		INSERT INTO deepir.tb_log_vendor
+	(  user_seq, user_id, user_ip, created)
+		VALUES (  #{userSeq}, #{loginId}, #{userIp}, now())
+    </insert>
+
+	<update id="updateLoginHistory" parameterType="Long" >
+		UPDATE deepir.tb_users SET last_logon_time = now() WHERE user_seq = #{userSeq}
+	</update>
+
+	<select id="getUserInfo" parameterType="MemberInfoDto"  resultType="MemberInfoDto">
+		SELECT user_id
+		, user_name
+		, (SELECT SUM(mileage) FROM deepir.tb_mileage WHERE user_id = #{userId}) mileage
+		, CONCAT(DATE_FORMAT(role_duration, '%Y-%m-%d'), ' ~ ', DATE_FORMAT(role_duration + INTERVAL 3 DAY, '%Y-%m-%d')) role_duration
+		, CASE user_type WHEN 'ROLE_USER' THEN '사용자'
+						  WHEN 'ROLE_ADMIN' THEN '관리자'
+		 ELSE '미구분'
+		  END user_type
+		  , CASE man_type WHEN 'NONE' THEN '권한없음'
+						 WHEN 'ROLE_VIEW' THEN '인력조회자'
+						 WHEN 'ROLE_MANAGE' THEN '인력관리자'
+		  ELSE '미구분'
+		  END man_type
+		 , CASE down_type WHEN 'NONE' THEN '권한없음'
+						 WHEN 'ROLE_DOWNLOAD' THEN '다운권한'
+						 WHEN 'ROLE_APPROVAL' THEN '승인권한'
+						 WHEN 'ROLE_ALL' THEN '전체권한'
+		  ELSE '미구분'
+		 END down_type
+		FROM deepir.tb_users tu
+		WHERE user_id = #{userId}
+	</select>
+
+	<update id="updateRoleSetting">
+		UPDATE tb_users SET role_duration = null, down_type='NONE' WHERE user_id = #{userId}
+	</update>
+
+</mapper>

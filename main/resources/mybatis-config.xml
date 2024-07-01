@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+		<setting name="callSettersOnNulls" value="true"/>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+
+	<typeAliases>
+<!--		<typeAlias type="kr.vtw.kms.member.dto.UserDto" alias="UserDto" />-->
+		<typeAlias type="kr.vtw.kms.member.dto.LoginHistoryDto" alias="LoginHistoryDto" />
+		<typeAlias type="kr.vtw.kms.member.dto.MemberInfoDto" alias="MemberInfoDto" />
+		<typeAlias type="kr.vtw.kms.viewer.dto.ViewerRequestDto" alias="ViewerRequestDto" />
+		<typeAlias type="kr.vtw.kms.viewer.dto.ViewerResponseDto" alias="ViewerResponseDto" />
+		<typeAlias type="kr.vtw.kms.notice.dto.NoticeDto" alias="NoticeDto" />
+		<typeAlias type="kr.vtw.kms.record.dto.RecordDto" alias="RecordDto" />
+		<typeAlias type="kr.vtw.kms.reference.dto.ReferenceDto" alias="ReferenceDto" />
+
+
+		<typeAlias type="kr.vtw.kms.reqdata.dto.RequestDto" alias="RequestDto" />
+		<typeAlias type="kr.vtw.kms.reqdata.dto.ReqResponsDto" alias="ReqResponsDto" />
+
+		<typeAlias type="kr.vtw.kms.setting.dto.AuthViewDto" alias="AuthViewDto" />
+		<typeAlias type="kr.vtw.kms.setting.dto.AuthDetailDto" alias="AuthDetailDto" />
+
+		<typeAlias type="kr.vtw.kms.stat.dto.StatDocsDto" alias="StatDocsDto" />
+		<typeAlias type="kr.vtw.kms.stat.dto.StatRequestDto" alias="StatRequestDto" />
+		<typeAlias type="kr.vtw.kms.stat.dto.StatPersonDto" alias="StatPersonDto" />
+		<typeAlias type="kr.vtw.kms.stat.dto.StatFileDto" alias="StatFileDto" />
+		<typeAlias type="kr.vtw.kms.stat.dto.StatWeekDto" alias="StatWeekDto" />
+		<typeAlias type="kr.vtw.kms.stat.dto.StatTimeDto" alias="StatTimeDto" />
+		<typeAlias type="kr.vtw.kms.stat.dto.StatDownloadDto" alias="StatDownloadDto" />
+		<typeAlias type="kr.vtw.kms.stat.dto.StatMileageDto" alias="StatMileageDto" />
+
+		<typeAlias type="kr.vtw.kms.common.dto.UploadDto" alias="UploadDto" />
+		<typeAlias type="kr.vtw.kms.common.dto.ParserDto" alias="ParserDto" />
+		<typeAlias type="kr.vtw.kms.common.dto.SourceDto" alias="SourceDto" />
+		<typeAlias type="kr.vtw.kms.common.dto.DownloadHistoryDto" alias="DownloadHistoryDto" />
+
+		<typeAlias type="kr.vtw.kms.reference.dto.MileageDto" alias="MileageDto" />
+
+		<typeAlias type="kr.vtw.kms.faq.dto.FaqDto" alias="FaqDto" />
+		<typeAlias type="kr.vtw.kms.ask.dto.AskDto" alias="AskDto" />
+		<typeAlias type="kr.vtw.kms.ask.dto.AskRequestDto" alias="AskRequestDto" />
+
+ 	</typeAliases>
+</configuration>

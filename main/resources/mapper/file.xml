@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- mapper 인터페이스가 위치하는 경로 -->
+<mapper namespace="kr.vtw.kms.common.mapper.FileMapper">
+    <insert id="fileInsert" parameterType="UploadDto" >
+        INSERT INTO deepir.tb_file_user
+      			( 	file_path, file_name, file_ext, file_size, save_name
+      				, title_file, desc_file, type_code, type_file
+      				, thumbnail_name, save_thumbname, inid
+      			) VALUES(
+      			#{filePath}
+      			, #{fileName}
+      			, #{fileExt}
+      			, #{fileSize}
+      			, #{saveName}
+      			, #{titleFile}
+      			, #{descFile}
+      			, #{typeCode}
+      			, #{typeFile}
+      			, #{thumbnailName}
+      			, #{saveThumbname}
+      			, #{inid}
+      			)
+    </insert>
+
+	<select id="getTempName" parameterType="int" resultType="ParserDto">
+		SELECT CASE WHEN file_ext in ('pptx','ppt') THEN REPLACE(save_name, 'pptx', 'pdf') ELSE save_name END tmp_name, file_ext
+	   FROM deepir.tb_file_info
+	   WHERE 1=1
+	   AND file_code =  #{filecd}
+	</select>
+
+	<insert id="insertSource" parameterType="SourceDto">
+		INSERT INTO deepir.tb_file_source
+		(file_code, file_source, inid, upid)
+		VALUES( #{filecd}, #{text}, 'admin', 'admin')
+	</insert>
+
+
+	<update id="updateFile" parameterType="int">
+		UPDATE deepir.tb_file_info
+		SET data_yn = 1, updt = now(), upid = 'admin'
+		WHERE file_code = #{filecd}
+	</update>
+
+	<insert id="insertHistory" parameterType="DownloadHistoryDto">
+		INSERT INTO deepir.tb_download_history (user_id, file_name, file_path, download_timestamp, file_ext, ip_address, download_result, error_message, file_code)
+		VALUES(#{userId}, #{fileName}, #{filePath}, NOW(), #{fileExt}, #{ipAddress}, #{downloadResult}, #{errorMessage}, #{fileCode});
+	</insert>
+
+</mapper>
