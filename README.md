@@ -3,6 +3,7 @@ KMS_ BackEnd Part
 Skill Set
 - Programming Languages: Java, Spring Framework
 - Open Source: JPA, Mybatis, JWT, Spring Security, RestApi
+- DB: RDBMS (Maria DB)
 
 Architecture
 - MVC Pattern, GoF Pattern, DDD Pattern
