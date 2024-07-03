@@ -9,6 +9,7 @@ Skill Set
 - Programming Languages: Java, Spring Framework
 - Open Source: JPA, Mybatis, JWT, Spring Security, RestApi
 - DB: RDBMS (Maria DB)
+- DevOps: Jenkins
 
 
 Architecture
