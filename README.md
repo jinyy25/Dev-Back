@@ -6,9 +6,9 @@ Project : 지식관리 시스템
 
 
 Skill Set
-- Programming Languages: Java, Spring Framework
-- Open Source: JPA, Mybatis, JWT, Spring Security, RestApi
-- DB: RDBMS (Maria DB)
+- Programming Languages: Java, Spring Framework, Python
+- Open Source: JPA, Mybatis, JWT, Spring Security, RestApi, Logstash
+- DB: RDBMS (Maria DB), Elasticsearch
 - DevOps: Jenkins
 
 
