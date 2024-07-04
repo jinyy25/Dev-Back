@@ -7,17 +7,14 @@ Project : 지식관리 시스템
 
 Skill Set
 - Programming Languages: Java, Spring Framework, Python
-- Open Source: JPA, Mybatis, JWT, Spring Security, RestApi, Logstash
-- DB: RDBMS (Maria DB), Elasticsearch
+- Open Source: JPA, Mybatis, JWT, Spring Security, RestApi
+- DB: RDBMS (Maria DB)
 - DevOps: Jenkins
 
-
-Architecture
-- MVC Pattern, GoF Pattern, DDD Pattern
-
-
-Build Tool
-- Gradle
+  
+Data Mining
+- Python
+- Elasticsearch, Logstash
 
 
 OS 
@@ -29,6 +26,9 @@ DevOps
 - Gitlab
 
 
-Data Mining
-- Python
-- Elasticsearch, Logstash
+Build Tool
+- Gradle
+
+
+Architecture
+- MVC Pattern, GoF Pattern, DDD Pattern
