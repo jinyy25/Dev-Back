@@ -26,6 +26,7 @@ OS
 
 DevOps 
 - Jenkins
+- Gitlab
 
 
 Data Mining
