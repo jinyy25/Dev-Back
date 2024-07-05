@@ -4,6 +4,7 @@ Project : 지식관리 시스템
 
 개발 인원 : 1 
 
+기능: 로그인, 검색기능, pdf/ppt/hwp 화면뷰, 파일 단건/다건 다운로드, 권한부여, 게시판, 동영상자료 업로드 및 다운로드, 문서 내용 추출
 
 Skill Set
 - Programming Languages: Java, Spring Framework, Python
