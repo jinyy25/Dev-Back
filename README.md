@@ -17,25 +17,10 @@ Skill Set
 - Programming Languages: Java, Spring Framework, Python
 - Open Source: JPA, Mybatis, JWT, Spring Security, RestApi
 - DB: RDBMS (Maria DB)
-- DevOps: Jenkins
-
-  
-Data Mining
-- Python
-- Elasticsearch, Logstash
-
-
-OS 
-- Ubuntu 18.04
-
-
-DevOps 
-- Jenkins
-- Gitlab
-
-
-Build Tool
-- Gradle
+- DevOps: Gitlab, Jenkins
+- Build Tool: Gradle
+- Data Mining: Elasticsearch, Logstash
+- OS: Ubuntu 18.04
 
 
 Architecture
